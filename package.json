@@ -1,0 +1,27 @@
+{
+  "name": "projectpodcast",
+  "version": "1.0.0",
+  "description": "Podcast app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./node_modules/node-static/bin/cli.js . -c 1 --spa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FerrolMola/ProjectPodcast.git"
+  },
+  "author": "candeladr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FerrolMola/ProjectPodcast/issues"
+  },
+  "homepage": "https://github.com/FerrolMola/ProjectPodcast#readme",
+  "dependencies": {
+    "bootstrap": "^4.1.3",
+    "bootstrap-css-only": "^4.1.1",
+    "node-static": "^0.7.10"
+  },
+  "devDependencies": {
+    "bootstrap-css": "^4.0.0-alpha.5"
+  }
+}
