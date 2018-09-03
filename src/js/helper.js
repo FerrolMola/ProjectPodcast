@@ -1,6 +1,7 @@
 import { getAllPodcasts } from './api/api.js';
 import { getPodcastDetail } from './api/api.js';
 
+
 export function renderEpisodio(url) {
 
 }
@@ -9,11 +10,15 @@ export function renderPodcast(url) {
     let podcastId = url[1];
     
 }
+export function renderPrincipalv2() {
+
+}
 
 export function renderPrincipal() {
 
+    debugger;
+        
     getAllPodcasts().then(allPodcasts => {
-       
         let html = `
             <div class="podcasts-grid">
                 <div class="filter">

@@ -1,5 +1,7 @@
 
-export function getAllPodcasts() {
+var TOPPODCASTS_URL = 'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json';
+
+export function getAllPodcastsV1() {
 	
 	return new Promise(function (resolve, reject) {
 		// Llamada al api
@@ -12,6 +14,32 @@ export function getAllPodcasts() {
 		}		
 	})
 }  
+
+export function getAllPodcasts() {
+
+	debugger;
+	const allPodcasts = [];
+
+	fetch(TOPPODCASTS_URL)
+		.then(function(response) {
+			return response.json();
+		})
+		.then((data) => {					
+			data.feed.entry.forEach(function (podcasts) {	
+				const podcast = {
+					id: podcasts.id.attributes['im:id'],
+					name: podcasts['im:name'].label,
+					author: podcasts['im:artist'].label,
+					description: podcasts.summary ? podcasts.summary.label : '',
+					cover: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
+				}
+				allPodcasts.push(podcast)				
+			});
+			//return Promise.resolve(allPodcasts);
+			return allPodcasts;
+		});
+	
+} 
 
 export function getPodcastDetail(podcastId) {
 
