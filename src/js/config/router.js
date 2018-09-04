@@ -1,6 +1,6 @@
 import { renderPrincipal } from '../helper.js';
 import { renderPodcast } from '../helper.js';
-import { renderEpisodio } from '../helper.js';
+//import { renderEpisodio } from '../helper.js';
 
 class Router {
 
@@ -15,7 +15,6 @@ class Router {
 
 			while (element && element.tagName !== 'A') {
                 element = element.parentNode;
-
 			}
 
             if (element) {
@@ -39,7 +38,7 @@ class Router {
             console.log("Detalle de un podscast");
        }else if (url.match(patternEpisodio)){
             // Detalle de un episodio  /podcast/{podcastId}/episode/{episodeId} 
-            renderEpisodio(url.match(patternEpisodio));
+           // renderEpisodio(url.match(patternEpisodio));
             console.log("Detalle de un episodio");
        }else{
             // Vista principal /

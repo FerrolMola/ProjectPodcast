@@ -1,23 +1,111 @@
 import { getAllPodcasts } from './api/api.js';
-import { getPodcastDetail } from './api/api.js';
+import { getPodcastId } from './api/api.js';
 
 
-export function renderEpisodio(url) {
+function renderEpisodios(podcast) {
+
+    const episodios = podcast.episodios.map(episodio =>{
+        return `
+				<tr class="podcast-episode-summary">
+					<td>
+						<a href="${`/podcast/${podcast.id}/episode/${episodio.idEpisodio}`}">${episodio.titleEpisodio}</a>
+					</td>
+					<td>${episodio.fechaPub}</td>
+                    <td class="duration">${episodio.dur}</td>
+                    
+                    <div id="page-episode" class="episode-detail-page page-with-sidebar">
+                        <div class="sidebar-section">
+                            <!-- cdr:revisar -->
+                        </div>
+        
+                        <div class="content-section">
+                            <div class="episode-detail section">
+                                <div class="title">${episodio.titleEpisodio}</div>
+                                <div class="subtitle">${episodio.descripcionEpisodio}</div>
+                                <hr/>
+                                <div class="player">
+                                    <audio src=${episodio.mp3} controls></audio>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+				</tr>
+            `;
+            
+    }).join('');
+
+    return `
+        <div class="podcast-detail-page page-with-sidebar">
+            <section class="sidebar-section">
+                <!-- cdr:revisar -->
+            </section>
+
+            <section class="content-section">
+                <div class="section podcast-episodes-count">
+                    <span>
+                        Episodes: ${podcast.episodios.length}
+                    </span>
+                </div>
+
+                <div class="section podcast-episodes">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${episodios}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    `;
+	
+}
+
+function renderEstructuraLateral (podcast){
+
+    return `
+            <div class="section sidebar">
+                <div class="podcast-cover text-center">
+                    <a href="${`/podcast/${podcast.id}`}">
+                        <!-- cdr: recuerda revisar el tema de la imagen -->
+                        <img src="" alt="${podcast.name}">
+                    </a>
+                </div>
+                <hr/>
+                <div class="podcast-title">
+                    <a href="${`/podcast/${podcast.id}`}">
+                        <div class="title">${podcast.titulo}</div>
+                        <div class="author"><span>by&nbsp;</span>${podcast.author}</div>
+                    </a>
+                </div>
+                <hr/>
+                <div class="podcast-description">
+                    <div>Description:</div>
+                    <p>${podcast.descripcion}</p>
+                </div>
+            </div>
+	    `;
 
 }
 
 export function renderPodcast(url) {
-    let podcastId = url[1];
-    
-}
-export function renderPrincipalv2() {
 
+    getPodcastId(url[1]).then(podcast => {    
+        let html = renderEstructuraLateral(podcast) + renderEpisodios (podcast);
+        render(html);        
+    })
+        
 }
 
 export function renderPrincipal() {
-
-    debugger;
-        
+       
     getAllPodcasts().then(allPodcasts => {
         let html = `
             <div class="podcasts-grid">
@@ -34,7 +122,6 @@ export function renderPrincipal() {
     
         render(html);
     })
-   
 }
 
 function renderPodcasts (podcasts) {

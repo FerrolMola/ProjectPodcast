@@ -1,48 +1,116 @@
 
 var TOPPODCASTS_URL = 'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json';
-
-export function getAllPodcastsV1() {
-	
-	return new Promise(function (resolve, reject) {
-		// Llamada al api
-		const podcastsMock = [{"id":"657476401","name":"Tiny Desk Concerts - Audio","author":"NPR","description":"Tiny Desk Concerts from NPR Music feature your favorite musicians performing at All Songs Considered host Bob Boilen's desk in the NPR office. Hear Wilco, Adele, Passion Pit, Tinariwen, Miguel, The xx and many more. This is the audio version of the podcast. A video version is also available.","releaseDate":"September 21, 2017","lastEpisodeDate":1506028920000,"cover":"http://is2.mzstatic.com/image/thumb/Podcasts62/v4/99/99/6f/99996fc9-b149-70c0-421d-d21a4325776a/mza_4791149985339305774.jpg/170x170bb-85.jpg","episodes":[],"isFavorite":false},{"id":"362115318","name":"Tiny Desk Concerts - Video","author":"NPR","description":"Tiny Desk Concerts from NPR's All Songs Considered features your favorite musicians performing at Bob Boilen's desk in the NPR Music office. Watch videos from Passion Pit, The xx, Wilco, Adele, Phoenix, Tinariwen, tUnE-yArDs and many more.","releaseDate":"September 21, 2017","lastEpisodeDate":1506026700000,"cover":"http://is1.mzstatic.com/image/thumb/Podcasts71/v4/19/ae/93/19ae9330-10d2-f755-25bd-445721e92ff9/mza_3202149667705386526.jpg/170x170bb-85.jpg","episodes":[],"isFavorite":false},{"id":"649744869","name":"Spinnin' Sessions","author":"Spinnin' Records","description":"Spinnin' Records proudly presents its weekly radio show: Spinnin' Sessions. Besides providing you with the most upfront dance floor tracks of the moment, Spinnin Sessions will also welcome a weekly guest DJ for a special 30 minute mix. Enjoy!","releaseDate":"September 21, 2017","lastEpisodeDate":1506025800000,"cover":"http://is3.mzstatic.com/image/thumb/Features/v4/cc/67/82/cc678269-c69b-33cf-f9e3-56cfb8355952/mza_2059060134152054157.jpg/170x170bb-85.jpg","episodes":[],"isFavorite":false},{"id":"617028866","name":"www.los40.com.mx - La Corneta","author":"www.los40.com.mx","description":"Programa de infoteinment: Información con entretenimiento, conducido por Eduardo Videgaray y Jose Ramón San Cristobal (El Estaca). Lunes a viernes de 1 a 3 PM por Los 40","releaseDate":"September 21, 2017","lastEpisodeDate":1506024480000,"cover":"http://is5.mzstatic.com/image/thumb/Podcasts62/v4/11/08/c5/1108c5c5-6966-74d0-f937-4532082b2e22/mza_7867131696435904428.jpg/170x170bb-85.jpg","episodes":[],"isFavorite":false}];
-		
-		resolve(podcastsMock)
-
-		if (podcastsMock === undefined || podcastsMock.length == 0) {
-			reject(console.log('getAllPodcasts - Error al recuperar los Podcasts'))
-		}		
-	})
-}  
+var TOPPODCASTS_URL_EPISODE_ID = 'https://itunes.apple.com/lookup?id=';
+var PROXY = 'https://cors-anywhere.herokuapp.com/';
 
 export function getAllPodcasts() {
 
-	debugger;
-	const allPodcasts = [];
+    return new Promise((resolve, reject) => {
 
-	fetch(TOPPODCASTS_URL)
-		.then(function(response) {
-			return response.json();
-		})
-		.then((data) => {					
-			data.feed.entry.forEach(function (podcasts) {	
-				const podcast = {
-					id: podcasts.id.attributes['im:id'],
-					name: podcasts['im:name'].label,
-					author: podcasts['im:artist'].label,
-					description: podcasts.summary ? podcasts.summary.label : '',
-					cover: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
-				}
-				allPodcasts.push(podcast)				
-			});
-			//return Promise.resolve(allPodcasts);
-			return allPodcasts;
-		});
+        fetch(TOPPODCASTS_URL)
+            .then(function (response) {
+                return response.json();
+            })
+            .then((data) => {
+                const allPodcasts = [];
+                data.feed.entry.forEach(function (podcasts) {
+                    const podcast = {
+                        id: podcasts.id.attributes['im:id'],
+                        name: podcasts['im:name'].label,
+                        author: podcasts['im:artist'].label,
+                        //description: podcasts.summary ? podcasts.summary.label : '',
+                        cover: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
+                    }
+                    allPodcasts.push(podcast)
+                });
+                resolve(allPodcasts);
+            });
+	});
+
+}
+
+function createPodcastObj (podcastDocument,podcastId){
+
+	//  imagen del podcast, su título, su autor y su descripción
+	// const img = cdr: ¿Como la recuperamos?
+	const id = podcastId,
+	author = podcastDocument.querySelector('rss channel author').textContent,
+	titulo = podcastDocument.querySelector('rss channel title').textContent,
+	descripcion = podcastDocument.querySelector('rss channel summary').textContent;
+
+	// episodios  listado de los mismos indicando su título, fecha de publicación y duración
+	let numEpisode = 0;
+	const episodios = [];
+	Array.from(podcastDocument.querySelectorAll('rss channel item')).map(episode =>{
 	
+		const titleEpisodio = episode.querySelector('title').textContent,
+		idEpisodio = 'episode_' + numEpisode ++,
+		fechaPub =  episode.querySelector('pubDate').textContent,
+		dur = episode.querySelector('duration').textContent,
+		mp3 = episode.querySelector('enclosure').getAttribute('url'),
+		descripcionEpisodio = episode.querySelector('description').textContent;
+
+		episodios.push(
+			{
+				titleEpisodio,
+				idEpisodio,
+				fechaPub,
+				dur,
+				mp3,
+				descripcionEpisodio
+			}
+		)
+	})
+
+	return {
+		id,
+		author,
+		titulo,
+		descripcion,
+		episodios
+	};
+
+}
+
+export function getPodcastId(podcastId) {
+
+	return new Promise((resolve, reject) => {
+
+		getPodcastDetail(podcastId).then(feed => {
+		
+			getPodcastDetailEpisode(feed).then(podcastDocument => {
+		
+				resolve(createPodcastObj(podcastDocument,podcastId));			
+			})
+		
+		})
+	});
 } 
 
 export function getPodcastDetail(podcastId) {
 
+	return new Promise((resolve, reject) => {
+		
+        fetch(PROXY + TOPPODCASTS_URL_EPISODE_ID + podcastId)
+            .then(function (response) {
+                return response.json();
+            })
+            .then((data) => {                
+            	 resolve(data.results[0].feedUrl);
+            });
+	});
 } 
 
 
+export function getPodcastDetailEpisode(feed) {
+
+	return new Promise((resolve, reject) => {
+		
+        fetch(feed)
+		.then(response => response.text())
+		.then((str) => {
+			const data = (new window.DOMParser()).parseFromString(str, "text/xml")
+			resolve(data);
+		});
+	});
+} 
