@@ -1,6 +1,6 @@
 import { getAllPodcasts } from './api/api.js';
-import { getPodcastId } from './api/api.js';
-
+import { getPodcastId } from './api/api.js'; 
+import { getFilterPodcasts } from './api/api.js';
 
 function renderEpisodios(podcast) {
 
@@ -106,8 +106,6 @@ function renderEstructuraLateral(podcast) {
 
 export function renderEpisodio(episodioSeleccionado) {
 
-    console.log("Clickamos en el episodio: " + episodioSeleccionado[2] + " del podcast " + episodioSeleccionado[1]);
-
     document.getElementsByClassName('section podcast-episodes-count')[0].style.display = 'none'
     document.getElementsByClassName('section podcast-episodes')[0].style.display = 'none'
     document.getElementById('page_' + episodioSeleccionado[2]).style.display = 'block';
@@ -121,24 +119,45 @@ export function renderPodcast(url) {
     })
 }
 
+
 export function renderPrincipal() {
 
     getAllPodcasts().then(allPodcasts => {
-        let html = `
-            <div class="podcasts-grid">
-                <div class="filter">
-                    <span class="badge">${allPodcasts.length}</span>
-                    <input type="text" name="filter-value" autoFocus
-                        placeholder="Filter podcasts..." value="">
-                </div>
-                <div class="podcasts-list">
-                    ${renderPodcasts(allPodcasts)}
-                </div>
-            </div>
-        `;
-
-        render(html);
+      drawPrincipal(allPodcasts);
     })
+}
+
+/*
+y que tengas otros dos métodos, uno que se ejecute al entrar a la ruta, y que llame a getAllPodcasts y cuando se resuelva la promesa llame a renderPrincipal (cdr: drawPrincipal)
+
+y otro método que se ejecute cuando se teclee en el buscador, y que llame a renderPrincipal (cdr: drawPrincipal) envaindole el array que devuelve getFilteredPodcasts
+
+*/
+function renderfillterPodcast(valuesFiltro) {
+
+      drawPrincipal(getFilterPodcasts(valuesFiltro));
+      // Devuelvo el foco al input filter-value con el valuesFiltro
+      const inputFilter = document.getElementsByName("filter-value")[0];
+      inputFilter.focus();
+      inputFilter.value = valuesFiltro;
+}
+
+function drawPrincipal(allPodcasts) {
+
+    let html = `
+        <div class="podcasts-grid">
+            <div class="filter">
+                <span class="badge">${allPodcasts.length}</span>
+                <input type="text" name="filter-value" autoFocus
+                    placeholder="Filter podcasts..." value="">
+            </div>
+            <div class="podcasts-list">
+                ${renderPodcasts(allPodcasts)}
+            </div>
+        </div>
+    `;
+
+    render(html);
 }
 
 function renderPodcasts(podcasts) {
@@ -177,4 +196,13 @@ function render(html) {
     contenido.innerHTML = "";
     // anhadimos contenido
     contenido.appendChild(element);
+
+    // cdr: esto hay que modificarlo está feo
+    const inputFilter = document.getElementsByName("filter-value")[0];
+    if (typeof inputFilter != 'undefined'){
+        inputFilter.addEventListener("keyup", function(event) {
+            renderfillterPodcast (this.value);
+        });  
+    }
+
 }
