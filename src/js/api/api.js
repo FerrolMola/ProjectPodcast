@@ -18,7 +18,6 @@ export function getAllPodcasts() {
                         id: podcasts.id.attributes['im:id'],
                         name: podcasts['im:name'].label,
                         author: podcasts['im:artist'].label,
-                        //description: podcasts.summary ? podcasts.summary.label : '',
                         cover: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
                     }
                     allPodcasts.push(podcast)
@@ -45,7 +44,7 @@ function createPodcastObj (podcastDocument,podcastId){
 	
 		const titleEpisodio = episode.querySelector('title').textContent,
 		idEpisodio = 'episode_' + numEpisode ++,
-		fechaPub =  episode.querySelector('pubDate').textContent,
+		fechaPub =  new Date(episode.querySelector('pubDate').textContent).toLocaleDateString(),
 		dur = episode.querySelector('duration').textContent,
 		mp3 = episode.querySelector('enclosure').getAttribute('url'),
 		descripcionEpisodio = episode.querySelector('description').textContent;
@@ -106,7 +105,7 @@ export function getPodcastDetailEpisode(feed) {
 
 	return new Promise((resolve, reject) => {
 		
-        fetch(feed)
+        fetch(PROXY + feed)
 		.then(response => response.text())
 		.then((str) => {
 			const data = (new window.DOMParser()).parseFromString(str, "text/xml")

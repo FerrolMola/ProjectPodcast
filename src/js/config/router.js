@@ -1,6 +1,6 @@
 import { renderPrincipal } from '../helper.js';
 import { renderPodcast } from '../helper.js';
-//import { renderEpisodio } from '../helper.js';
+import { renderEpisodio } from '../helper.js';
 
 class Router {
 
@@ -33,15 +33,10 @@ class Router {
         var patternEpisodio = new RegExp(/^\/podcast\/(\d*)\/episode\/(.*)\/?$/);
 
        if(url.match(patternPodcast)){
-            // Detalle de un Podcast /podcast/{podcastId} 
             renderPodcast(url.match(patternPodcast));
-            console.log("Detalle de un podscast");
        }else if (url.match(patternEpisodio)){
-            // Detalle de un episodio  /podcast/{podcastId}/episode/{episodeId} 
-           // renderEpisodio(url.match(patternEpisodio));
-            console.log("Detalle de un episodio");
+            renderEpisodio(url.match(patternEpisodio));
        }else{
-            // Vista principal /
             renderPrincipal ();
        }                    
        

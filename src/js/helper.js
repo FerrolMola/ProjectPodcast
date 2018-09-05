@@ -4,44 +4,49 @@ import { getPodcastId } from './api/api.js';
 
 function renderEpisodios(podcast) {
 
-    const episodios = podcast.episodios.map(episodio =>{
-        return `
-				<tr class="podcast-episode-summary">
-					<td>
-						<a href="${`/podcast/${podcast.id}/episode/${episodio.idEpisodio}`}">${episodio.titleEpisodio}</a>
-					</td>
-					<td>${episodio.fechaPub}</td>
-                    <td class="duration">${episodio.dur}</td>
-                    
-                    <div id="page-episode" class="episode-detail-page page-with-sidebar">
-                        <div class="sidebar-section">
-                            <!-- cdr:revisar -->
-                        </div>
-        
-                        <div class="content-section">
-                            <div class="episode-detail section">
-                                <div class="title">${episodio.titleEpisodio}</div>
-                                <div class="subtitle">${episodio.descripcionEpisodio}</div>
-                                <hr/>
-                                <div class="player">
-                                    <audio src=${episodio.mp3} controls></audio>
-                                </div>
+
+    const trEpisodios = [];
+    const divDetailEpisodios = [];
+    podcast.episodios.forEach(episodio => {
+
+        const trHtml =  `
+                <tr class="podcast-episode-summary id="${episodio.idEpisodio}">
+                    <td>
+                        <a href="${`/podcast/${podcast.id}/episode/${episodio.idEpisodio}`}">${episodio.titleEpisodio}</a>
+                    </td>
+                    <td>${episodio.fechaPub}</td>
+                    <td class="duration">${episodio.dur}</td>                                       
+                </tr>`;
+        trEpisodios.push(trHtml);
+
+        const divHtlm = `
+                <section id="page_${episodio.idEpisodio}" class="episode-detail-page page-with-sidebar">
+                    <div class="sidebar-section">
+                        <!-- cdr:revisar -->
+                    </div>
+
+                    <div class="content-section">
+                        <div class="episode-detail section">
+                            <div class="title">${episodio.titleEpisodio}</div>
+                            <div class="subtitle">${episodio.descripcionEpisodio}</div>
+                            <hr/>
+                            <div class="player">
+                                <audio src=${episodio.mp3} controls></audio>
                             </div>
                         </div>
                     </div>
-
-				</tr>
-            `;
-            
-    }).join('');
+                </section>`;
+        divDetailEpisodios.push(divHtlm);
+    });
 
     return `
         <div class="podcast-detail-page page-with-sidebar">
             <section class="sidebar-section">
-                <!-- cdr:revisar -->
+                ${renderEstructuraLateral(podcast)}
             </section>
 
             <section class="content-section">
+
                 <div class="section podcast-episodes-count">
                     <span>
                         Episodes: ${podcast.episodios.length}
@@ -58,17 +63,21 @@ function renderEpisodios(podcast) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${episodios}
+                            ${trEpisodios.join('')}
                         </tbody>
                     </table>
                 </div>
+
+                <!-- bloque detalle epidodio -->
+                ${divDetailEpisodios.join('')}
+
             </section>
         </div>
     `;
-	
+
 }
 
-function renderEstructuraLateral (podcast){
+function renderEstructuraLateral(podcast) {
 
     return `
             <div class="section sidebar">
@@ -95,17 +104,25 @@ function renderEstructuraLateral (podcast){
 
 }
 
+export function renderEpisodio(episodioSeleccionado) {
+
+    console.log("Clickamos en el episodio: " + episodioSeleccionado[2] + " del podcast " + episodioSeleccionado[1]);
+
+    document.getElementsByClassName('section podcast-episodes-count')[0].style.display = 'none'
+    document.getElementsByClassName('section podcast-episodes')[0].style.display = 'none'
+    document.getElementById('page_' + episodioSeleccionado[2]).style.display = 'block';
+}
+
 export function renderPodcast(url) {
 
-    getPodcastId(url[1]).then(podcast => {    
-        let html = renderEstructuraLateral(podcast) + renderEpisodios (podcast);
-        render(html);        
+    getPodcastId(url[1]).then(podcast => {
+        let html = renderEpisodios(podcast);
+        render(html);
     })
-        
 }
 
 export function renderPrincipal() {
-       
+
     getAllPodcasts().then(allPodcasts => {
         let html = `
             <div class="podcasts-grid">
@@ -119,12 +136,12 @@ export function renderPrincipal() {
                 </div>
             </div>
         `;
-    
+
         render(html);
     })
 }
 
-function renderPodcasts (podcasts) {
+function renderPodcasts(podcasts) {
 
     return podcasts.map(podcast => {
         return `
@@ -147,17 +164,17 @@ function renderPodcasts (podcasts) {
                     </div>
                 </div>
             `;
-        })
+    })
 }
 
-function render (html) {
+function render(html) {
 
-    let element = document.createElement('div'); // cdr: let | const
+    const element = document.createElement('div'); // cdr: let | const
     element.innerHTML = html;
-    const contenido = document.querySelector(".main-content"); 
+    const contenido = document.querySelector(".main-content");
 
     // vaciamos el contenido
-    contenido.innerHTML="";
+    contenido.innerHTML = "";
     // anhadimos contenido
     contenido.appendChild(element);
 }
