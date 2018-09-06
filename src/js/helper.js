@@ -1,15 +1,14 @@
 import { getAllPodcasts } from './api/api.js';
-import { getPodcastId } from './api/api.js'; 
+import { getPodcastId } from './api/api.js';
 import { getFilterPodcasts } from './api/api.js';
 
 function renderEpisodios(podcast) {
 
-
-    const trEpisodios = [];
-    const divDetailEpisodios = [];
+    const trEpisodios = [],
+        divDetailEpisodios = [];
     podcast.episodios.forEach(episodio => {
 
-        const trHtml =  `
+        const trHtml = `
                 <tr class="podcast-episode-summary id="${episodio.idEpisodio}">
                     <td>
                         <a href="${`/podcast/${podcast.id}/episode/${episodio.idEpisodio}`}">${episodio.titleEpisodio}</a>
@@ -74,7 +73,6 @@ function renderEpisodios(podcast) {
             </section>
         </div>
     `;
-
 }
 
 function renderEstructuraLateral(podcast) {
@@ -101,7 +99,6 @@ function renderEstructuraLateral(podcast) {
                 </div>
             </div>
 	    `;
-
 }
 
 export function renderEpisodio(episodioSeleccionado) {
@@ -119,27 +116,20 @@ export function renderPodcast(url) {
     })
 }
 
-
 export function renderPrincipal() {
 
     getAllPodcasts().then(allPodcasts => {
-      drawPrincipal(allPodcasts);
+        drawPrincipal(allPodcasts);
     })
 }
 
-/*
-y que tengas otros dos métodos, uno que se ejecute al entrar a la ruta, y que llame a getAllPodcasts y cuando se resuelva la promesa llame a renderPrincipal (cdr: drawPrincipal)
-
-y otro método que se ejecute cuando se teclee en el buscador, y que llame a renderPrincipal (cdr: drawPrincipal) envaindole el array que devuelve getFilteredPodcasts
-
-*/
 function renderfillterPodcast(valuesFiltro) {
 
-      drawPrincipal(getFilterPodcasts(valuesFiltro));
-      // Devuelvo el foco al input filter-value con el valuesFiltro
-      const inputFilter = document.getElementsByName("filter-value")[0];
-      inputFilter.focus();
-      inputFilter.value = valuesFiltro;
+    drawPrincipal(getFilterPodcasts(valuesFiltro));
+    // Devuelvo el foco al input filter-value con el valuesFiltro
+    const inputFilter = document.getElementsByName("filter-value")[0];
+    inputFilter.focus();
+    inputFilter.value = valuesFiltro;
 }
 
 function drawPrincipal(allPodcasts) {
@@ -199,10 +189,10 @@ function render(html) {
 
     // cdr: esto hay que modificarlo está feo
     const inputFilter = document.getElementsByName("filter-value")[0];
-    if (typeof inputFilter != 'undefined'){
-        inputFilter.addEventListener("keyup", function(event) {
-            renderfillterPodcast (this.value);
-        });  
+    if (typeof inputFilter != 'undefined') {
+        inputFilter.addEventListener("keyup", function (event) {
+            renderfillterPodcast(this.value);
+        });
     }
 
 }

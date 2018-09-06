@@ -283,7 +283,9 @@ a:hover {
 .episode-detail .player audio {
 	width: 100%;
 }
-
+.episode-detail-page.page-with-sidebar {
+	display: none;
+}
 
 /* START: Spinner (http://tobiasahlin.com/spinkit/) */
 .spinner {
@@ -297,10 +299,6 @@ a:hover {
 }
 
 .spinner.hidden {
-	display: none;
-}
-
-.episode-detail-page.page-with-sidebar {
 	display: none;
 }
 

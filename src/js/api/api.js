@@ -5,23 +5,15 @@ var TOPPODCASTS_URL = 'https://itunes.apple.com/us/rss/toppodcasts/limit=100/gen
 var TOPPODCASTS_URL_EPISODE_ID = 'https://itunes.apple.com/lookup?id=';
 var PROXY = 'https://cors-anywhere.herokuapp.com/';
 
-/*
-y luego, una cosa que puedes hacer es que cuando recuperes los podcasts la primera vez, sea de donde sea, 
-los metas en un array del modulo del api, así cuando filtres no tienes que pedirlos de cada vez, directamente en getFilteredPodcasts los lees de ese array
-*/
-/*
-        y luego, una cosa que puedes hacer es que cuando recuperes los podcasts la primera vez, sea de donde sea, los metas en un array del modulo del api, 
-		así cuando filtres no tienes que pedirlos de cada vez, directamente en getFilteredPodcasts los lees de ese array
-*/
+
 export function getAllPodcasts() {
 
 	return new Promise((resolve, reject) => {
 
-		if (getLocalStorage()) {
-			console.log('se recupera de cache');
-			// devolvemos una promesa
+		const datosAlmacenados = getLocalStorage('podcasts');
+		if (datosAlmacenados) {
+			resolve(datosAlmacenados);
 		} else {
-
 			fetch(TOPPODCASTS_URL)
 				.then(response => {
 					return response.json();
@@ -38,11 +30,9 @@ export function getAllPodcasts() {
 						}
 						allPodcasts.push(podcast)
 					});
-					resolve(allPodcasts);					
+					setLocalStorage('podcasts', allPodcasts);
+					resolve(allPodcasts);
 				})
-				.then(dataCache => {
-					setLocalStorage(dataCache);
-				});
 		}
 	});
 }
@@ -70,8 +60,9 @@ function createPodcastObj(podcastDocument, podcastId) {
 		descripcion = podcastDocument.querySelector('rss channel summary').textContent;
 
 	// episodios  listado de los mismos indicando su título, fecha de publicación y duración
-	let numEpisode = 0;
-	const episodios = [];
+	let numEpisode = 0,
+		episodios = [],
+		objPodcast = {};
 	Array.from(podcastDocument.querySelectorAll('rss channel item')).map(episode => {
 
 		const titleEpisodio = episode.querySelector('title').textContent,
@@ -93,28 +84,36 @@ function createPodcastObj(podcastDocument, podcastId) {
 		)
 	})
 
-	return {
+	objPodcast = {
 		id,
 		author,
 		titulo,
 		descripcion,
 		episodios
 	};
+	setLocalStorage('podcast_' + podcastId, objPodcast);
 
+	return objPodcast;
 }
 
 export function getPodcastId(podcastId) {
 
 	return new Promise((resolve, reject) => {
 
-		getPodcastDetail(podcastId).then(feed => {
+		const datosAlmacenados = getLocalStorage('podcast_' + podcastId);
+		if (datosAlmacenados) {
+			resolve(datosAlmacenados);
+		} else {
 
-			getPodcastDetailEpisode(feed).then(podcastDocument => {
+			getPodcastDetail(podcastId).then(feed => {
 
-				resolve(createPodcastObj(podcastDocument, podcastId));
+				getPodcastDetailEpisode(feed).then(podcastDocument => {
+
+					resolve(createPodcastObj(podcastDocument, podcastId));
+				})
+
 			})
-
-		})
+		}
 	});
 }
 
@@ -131,7 +130,6 @@ export function getPodcastDetail(podcastId) {
 			});
 	});
 }
-
 
 export function getPodcastDetailEpisode(feed) {
 
