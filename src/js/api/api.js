@@ -33,6 +33,7 @@ export function getAllPodcasts() {
 					setLocalStorage('podcasts', allPodcasts);
 					resolve(allPodcasts);
 				})
+				.catch(reject);
 		}
 	});
 }
@@ -50,15 +51,31 @@ export function getFilterPodcasts(valuesFiltro) {
 
 }
 
-function createPodcastObj(podcastDocument, podcastId) {
+function crearPodcastDatosPrincipales(podcastId) {
+
+	// Recuperar datos almacenados
+	const podcastsDatosPrincipales = getLocalStorage('podcasts');
+	
+	const podcastDatos = podcastsDatosPrincipales.filter(podcast => {
+		return podcast.id === podcastId;
+	});
+
+	return {
+		id: podcastId,
+		titulo: podcastDatos[0].name,
+		author: podcastDatos[0].author,
+		img: podcastDatos[0].cover,		
+	};
+}
+
+function crearPodcastObj(podcastDocument, id) {
 
 	//  imagen del podcast, su título, su autor y su descripción
-	// const img = cdr: ¿Como la recuperamos?
-	const id = podcastId,
-		author = podcastDocument.querySelector('rss channel author').textContent,
-		titulo = podcastDocument.querySelector('rss channel title').textContent,
-		descripcion = podcastDocument.querySelector('rss channel summary').textContent;
-
+	const podcastDatosPrincipales = crearPodcastDatosPrincipales(id); // cdr: revisar esto
+	const author = podcastDatosPrincipales.author,
+		titulo = podcastDatosPrincipales.titulo,
+		img = podcastDatosPrincipales.img;
+	
 	// episodios  listado de los mismos indicando su título, fecha de publicación y duración
 	let numEpisode = 0,
 		episodios = [],
@@ -68,9 +85,9 @@ function createPodcastObj(podcastDocument, podcastId) {
 		const titleEpisodio = episode.querySelector('title').textContent,
 			idEpisodio = 'episode_' + numEpisode++,
 			fechaPub = new Date(episode.querySelector('pubDate').textContent).toLocaleDateString(),
-			dur = episode.querySelector('duration').textContent,
+			dur = episode.querySelector('duration') ? episode.querySelector('duration').textContent: '-',
 			mp3 = episode.querySelector('enclosure').getAttribute('url'),
-			descripcionEpisodio = episode.querySelector('description').textContent;
+			descripcionEpisodio = episode.querySelector('description') ? episode.querySelector('description').textContent: '-';
 
 		episodios.push(
 			{
@@ -87,18 +104,18 @@ function createPodcastObj(podcastDocument, podcastId) {
 	objPodcast = {
 		id,
 		author,
-		titulo,
-		descripcion,
+		titulo,		
+		img,
 		episodios
 	};
-	setLocalStorage('podcast_' + podcastId, objPodcast);
+	setLocalStorage('podcast_' + id, objPodcast);
 
 	return objPodcast;
 }
 
 export function getPodcastId(podcastId) {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 
 		const datosAlmacenados = getLocalStorage('podcast_' + podcastId);
 		if (datosAlmacenados) {
@@ -109,7 +126,7 @@ export function getPodcastId(podcastId) {
 
 				getPodcastDetailEpisode(feed).then(podcastDocument => {
 
-					resolve(createPodcastObj(podcastDocument, podcastId));
+					resolve(crearPodcastObj(podcastDocument, podcastId));
 				})
 
 			})
@@ -127,7 +144,8 @@ export function getPodcastDetail(podcastId) {
 			})
 			.then((data) => {
 				resolve(data.results[0].feedUrl);
-			});
+			})
+			.catch(reject);
 	});
 }
 
@@ -140,6 +158,7 @@ export function getPodcastDetailEpisode(feed) {
 			.then((str) => {
 				const data = (new window.DOMParser()).parseFromString(str, "text/xml")
 				resolve(data);
-			});
+			})
+			.catch(reject);;
 	});
 } 

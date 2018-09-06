@@ -81,8 +81,7 @@ function renderEstructuraLateral(podcast) {
             <div class="section sidebar">
                 <div class="podcast-cover text-center">
                     <a href="${`/podcast/${podcast.id}`}">
-                        <!-- cdr: recuerda revisar el tema de la imagen -->
-                        <img src="" alt="${podcast.name}">
+                        <img src="${podcast.img}" alt="${podcast.name}">
                     </a>
                 </div>
                 <hr/>
@@ -106,13 +105,17 @@ export function renderEpisodio(episodioSeleccionado) {
     document.getElementsByClassName('section podcast-episodes-count')[0].style.display = 'none'
     document.getElementsByClassName('section podcast-episodes')[0].style.display = 'none'
     document.getElementById('page_' + episodioSeleccionado[2]).style.display = 'block';
+    hideSpinner();
 }
 
 export function renderPodcast(url) {
 
     getPodcastId(url[1]).then(podcast => {
         let html = renderEpisodios(podcast);
-        render(html);
+        render(html,hideSpinner);
+    })
+    .catch(error => {
+        console.error('renderPodcast - Se ha producido un error al mostrar el podcast: ' + error);
     })
 }
 
@@ -120,6 +123,9 @@ export function renderPrincipal() {
 
     getAllPodcasts().then(allPodcasts => {
         drawPrincipal(allPodcasts);
+    })
+    .catch(error => {
+        console.error('renderPrincipal - Se ha producido un error al mostrar la pantalla principal: ' + error);
     })
 }
 
@@ -147,7 +153,7 @@ function drawPrincipal(allPodcasts) {
         </div>
     `;
 
-    render(html);
+    render(html,hideSpinner,eventFiltro);
 }
 
 function renderPodcasts(podcasts) {
@@ -176,9 +182,25 @@ function renderPodcasts(podcasts) {
     })
 }
 
-function render(html) {
+export function showSpinner() {
+    document.getElementsByClassName('spinner')[0].style.display = 'block';
+}
 
-    const element = document.createElement('div'); // cdr: let | const
+function hideSpinner() {
+    document.getElementsByClassName('spinner')[0].style.display = 'none';
+}
+
+function eventFiltro() {
+
+    var inputFilter = document.getElementsByName("filter-value")[0];
+    inputFilter.addEventListener("keyup", function(event) {
+        renderfillterPodcast(this.value);
+    });
+}
+
+export function render(html,hideSpinner,eventFiltro) {
+
+    const element = document.createElement('div');
     element.innerHTML = html;
     const contenido = document.querySelector(".main-content");
 
@@ -187,12 +209,7 @@ function render(html) {
     // anhadimos contenido
     contenido.appendChild(element);
 
-    // cdr: esto hay que modificarlo está feo
-    const inputFilter = document.getElementsByName("filter-value")[0];
-    if (typeof inputFilter != 'undefined') {
-        inputFilter.addEventListener("keyup", function (event) {
-            renderfillterPodcast(this.value);
-        });
-    }
-
+    if (eventFiltro) { eventFiltro(); }
+  
+    hideSpinner();
 }

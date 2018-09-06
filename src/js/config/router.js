@@ -1,15 +1,12 @@
 import { renderPrincipal } from '../helper.js';
 import { renderPodcast } from '../helper.js';
 import { renderEpisodio } from '../helper.js';
+import { showSpinner } from '../helper.js'
 
-class Router {
-
-    // cdr: convertir Router en un objeto
-    constructor() {}
-   
-    
+const Router = {
+  
     init (){
-
+        
         document.addEventListener('click', event => {
 			let element = event.target;
 
@@ -21,14 +18,17 @@ class Router {
                 event.preventDefault();
                 this.getUrl(element.pathname);
             }
-
         });
-        // La primera vez que ejecuto la aplicación
-        this.getUrl(window.location.pathname);
-    }
 
+		window.addEventListener('popstate', () => {
+			this.getUrl(window.location.pathname, true);
+        });
+        
+        this.getUrl(window.location.pathname);
+    },
     getUrl (url){
 
+        showSpinner();
         var patternPodcast = new RegExp(/^\/podcast\/(\d*)\/?$/);
         var patternEpisodio = new RegExp(/^\/podcast\/(\d*)\/episode\/(.*)\/?$/);
 
