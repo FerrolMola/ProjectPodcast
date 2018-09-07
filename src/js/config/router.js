@@ -1,7 +1,4 @@
-import { renderPrincipal } from '../helper.js';
-import { renderPodcast } from '../helper.js';
-import { renderEpisodio } from '../helper.js';
-import { showSpinner } from '../helper.js'
+import { renderPrincipal, renderPodcast, renderEpisodio, showSpinner } from '../helper.js';
 
 const Router = {
   

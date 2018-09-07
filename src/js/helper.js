@@ -1,6 +1,4 @@
-import { getAllPodcasts } from './api/api.js';
-import { getPodcastId } from './api/api.js';
-import { getFilterPodcasts } from './api/api.js';
+import { getAllPodcasts, getPodcastId, getFilterPodcasts } from './api/api.js';
 
 function renderEpisodios(podcast) {
 
@@ -19,11 +17,7 @@ function renderEpisodios(podcast) {
         trEpisodios.push(trHtml);
 
         const divHtlm = `
-                <section id="page_${episodio.idEpisodio}" class="episode-detail-page page-with-sidebar">
-                    <div class="sidebar-section">
-                        <!-- cdr:revisar -->
-                    </div>
-
+                <section id="page_${episodio.idEpisodio}" class="episode-detail-page page-with-sidebar">                   
                     <div class="content-section">
                         <div class="episode-detail section">
                             <div class="title">${episodio.titleEpisodio}</div>
@@ -94,7 +88,7 @@ function renderEstructuraLateral(podcast) {
                 <hr/>
                 <div class="podcast-description">
                     <div>Description:</div>
-                    <p>${podcast.descripcion}</p>
+                    <p>${podcast.description}</p>
                 </div>
             </div>
 	    `;
@@ -164,7 +158,7 @@ function renderPodcasts(podcasts) {
                     <div class="box">
                         <a href="/podcast/${podcast.id}">
                             <div class="box-icon">
-                                <img src=${podcast.cover} alt=${podcast.name}>
+                                <img src=${podcast.img} alt=${podcast.name}>
                             </div>
                             <div class="info">
                                 <h4 class="text-center">${podcast.name}</h4>

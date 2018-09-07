@@ -17,11 +17,12 @@
   },
   "homepage": "https://github.com/FerrolMola/ProjectPodcast#readme",
   "dependencies": {
-    "bootstrap": "^4.1.3",
-    "bootstrap-css-only": "^4.1.1",
+    "grunt": "^1.0.3",
     "node-static": "^0.7.10"
   },
   "devDependencies": {
-    "bootstrap-css": "^4.0.0-alpha.5"
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-uglify-es": "^3.3.0",
+    "uglify-es": "^3.3.9"
   }
 }

@@ -4,35 +4,35 @@ import { setLocalStorage } from '../config/localstorage.js'
 var TOPPODCASTS_URL = 'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json';
 var TOPPODCASTS_URL_EPISODE_ID = 'https://itunes.apple.com/lookup?id=';
 var PROXY = 'https://cors-anywhere.herokuapp.com/';
-
+var allPodcasts = [];
 
 export function getAllPodcasts() {
 
 	return new Promise((resolve, reject) => {
 
-		const datosAlmacenados = getLocalStorage('podcasts');
-		if (datosAlmacenados) {
-			resolve(datosAlmacenados);
+		allPodcasts = getLocalStorage('podcasts');
+		if (allPodcasts) {
+			resolve(allPodcasts);
 		} else {
 			fetch(TOPPODCASTS_URL)
 				.then(response => {
 					return response.json();
 				})
 				.then((data) => {
-					const allPodcasts = [];
+					allPodcasts = [];
 					data.feed.entry.forEach(function (podcasts) {
 						const podcast = {
 							id: podcasts.id.attributes['im:id'],
 							name: podcasts['im:name'].label,
 							author: podcasts['im:artist'].label,
-							// cdr: revisar esto
-							cover: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
+							description: podcasts['summary'] ? podcasts['summary'].label : 'Description not available',
+							img: podcasts['im:image'].filter((imageData) => imageData.attributes.height === '170')[0].label
 						}
 						allPodcasts.push(podcast)
 					});
 					setLocalStorage('podcasts', allPodcasts);
 					resolve(allPodcasts);
-				})
+				})				
 				.catch(reject);
 		}
 	});
@@ -54,9 +54,8 @@ export function getFilterPodcasts(valuesFiltro) {
 function crearPodcastDatosPrincipales(podcastId) {
 
 	// Recuperar datos almacenados
-	const podcastsDatosPrincipales = getLocalStorage('podcasts');
-	
-	const podcastDatos = podcastsDatosPrincipales.filter(podcast => {
+	//const podcastsDatosPrincipales = getLocalStorage('podcasts');
+	const podcastDatos = allPodcasts.filter(podcast => {
 		return podcast.id === podcastId;
 	});
 
@@ -64,16 +63,18 @@ function crearPodcastDatosPrincipales(podcastId) {
 		id: podcastId,
 		titulo: podcastDatos[0].name,
 		author: podcastDatos[0].author,
-		img: podcastDatos[0].cover,		
+		description: podcastDatos[0].description,
+		img: podcastDatos[0].img,		
 	};
 }
 
 function crearPodcastObj(podcastDocument, id) {
 
 	//  imagen del podcast, su título, su autor y su descripción
-	const podcastDatosPrincipales = crearPodcastDatosPrincipales(id); // cdr: revisar esto
+	const podcastDatosPrincipales = crearPodcastDatosPrincipales(id);
 	const author = podcastDatosPrincipales.author,
 		titulo = podcastDatosPrincipales.titulo,
+		description = podcastDatosPrincipales.description,
 		img = podcastDatosPrincipales.img;
 	
 	// episodios  listado de los mismos indicando su título, fecha de publicación y duración
@@ -106,6 +107,7 @@ function crearPodcastObj(podcastDocument, id) {
 		author,
 		titulo,		
 		img,
+		description,
 		episodios
 	};
 	setLocalStorage('podcast_' + id, objPodcast);
